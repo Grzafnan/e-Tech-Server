@@ -1,12 +1,47 @@
 require('dotenv').config();
-const express = require('express')
+const express = require('express');
+const cors = require('cors');
+const { MongoClient } = require("mongodb");
 const app = express()
 const port = process.env.PORT || 5000;
 
 
+app.use(cors());
+app.use(express.json())
+
+const client = new MongoClient(process.env.MONGODB_URI);
 
 
+const Products = client.db('e-Tech').collection('Products');
 
+
+async function run() {
+  try {
+    await client.connect();
+    console.log("DB connected...");
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+run();
+
+
+//Get Products
+app.get('/products', async (req, res) => {
+  try {
+    const result = await Products.find().toArray();
+    res.send({
+      success: true,
+      data: result
+    })
+  } catch (error) {
+    console.log(error.message);
+    res, send({
+      success: false,
+      message: error.message
+    })
+  }
+})
 
 
 
